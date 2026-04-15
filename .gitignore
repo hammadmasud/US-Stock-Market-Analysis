@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+venv/
+env/
+.env
+
+# Databases & Reports
+*.db
+*.csv
+# (Optional: If you want to keep data in GitHub, remove these lines)
+market5_crash_report_1.csv
+ScrapingLast1_Stocks.db
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store

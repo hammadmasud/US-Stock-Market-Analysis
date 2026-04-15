@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stocks News</title>
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --line: rgba(148, 163, 184, .18);
+      --good: #22c55e;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      --shadow: 0 10px 28px rgba(0, 0, 0, .25);
+      --radius: 18px;
+
+      --reasonBg: rgba(59, 130, 246, .14);
+      --reasonBorder: rgba(59, 130, 246, .40);
+      --reasonText: #dbeafe;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(59, 130, 246, .35), transparent 50%),
+        radial-gradient(900px 500px at 100% 0%, rgba(34, 197, 94, .22), transparent 55%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 28px 18px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: .2px;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 18px 36px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-h {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-h .title {
+      font-weight: 650;
+      letter-spacing: .2px;
+    }
+
+    .card-b {
+      padding: 18px 16px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+      background: rgba(15, 23, 42, .6);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    button {
+      background: linear-gradient(180deg, rgba(59, 130, 246, .95), rgba(37, 99, 235, .95));
+      border: 0;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 650;
+      letter-spacing: .2px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, .25);
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, .22);
+      background: rgba(2, 6, 23, .35);
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, .15);
+    }
+
+    .crash-top {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .type-banner {
+      border: 1px solid rgba(125, 211, 252, .28);
+      background: rgba(15, 36, 71, .22);
+      border-radius: 14px;
+      padding: 12px 12px;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .type-banner .muted {
+      color: var(--muted);
+    }
+
+    .type-banner b {
+      font-weight: 800;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 980px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, .25);
+    }
+
+    .metric .k {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric .v {
+      font-size: 18px;
+      font-weight: 750;
+      margin-top: 4px;
+    }
+
+    .v.bad {
+      color: #fecaca
+    }
+
+    .v.good {
+      color: #bbf7d0
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .reason-box {
+      border-radius: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--reasonBorder);
+      background: linear-gradient(180deg, var(--reasonBg), rgba(2, 6, 23, .25));
+      color: var(--reasonText);
+    }
+
+    .reason-box .label {
+      font-size: 12px;
+      letter-spacing: .18px;
+      color: rgba(219, 234, 254, .85);
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .reason-box .value {
+      font-size: 14px;
+      line-height: 1.55;
+      font-weight: 650;
+      color: #eaf2ff;
+      white-space: pre-line;
+    }
+
+    .reason-box .value.muted {
+      color: rgba(148, 163, 184, .95);
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      color: #cbd5e1;
+      font-weight: 700;
+      background: rgba(15, 23, 42, .35);
+      text-align: left;
+    }
+
+    tr:last-child td {
+      border-bottom: 0
+    }
+
+    .pct {
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .pct.bad {
+      color: #fecaca
+    }
+
+    .pct.good {
+      color: #bbf7d0
+    }
+
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .news-item {
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, .25);
+    }
+
+    .news-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .news-title {
+      margin: 0;
+      font-weight: 750;
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+
+    .news-meta {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .snippet {
+      margin: 10px 0 0;
+      color: #dde3ee;
+      line-height: 1.55;
+      font-size: 13px;
+      white-space: pre-line;
+    }
+
+    .snippet[hidden] {
+      display: none;
+    }
+
+    .news-btn {
+      background: rgba(15, 36, 71, .35);
+      border: 1px solid rgba(125, 211, 252, .28);
+      color: #dbeafe;
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .2px;
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    .empty {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px dashed rgba(148, 163, 184, .28);
+      color: var(--muted);
+      background: rgba(2, 6, 23, .18);
+    }
+
+    #crashChart {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    #crashChart {
+      width: 100% !important;
+      height: 420px !important;
+      display: block;
+    }
+
+    /* Tooltip */
+    .chart-tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(2, 6, 23, .92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+      max-width: 380px;
+      display: none;
+    }
+
+    .chart-tooltip .t-date {
+      font-weight: 800;
+      letter-spacing: .2px;
+      margin-bottom: 4px;
+    }
+
+    .chart-tooltip .t-drop {
+      color: #fecaca;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .chart-tooltip .t-meta {
+      color: rgba(148, 163, 184, .92);
+      font-weight: 650;
+      margin-bottom: 6px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .chart-tooltip .t-reason {
+      color: rgba(219, 234, 254, .92);
+      line-height: 1.4;
+      font-size: 12px;
+    }
+
+    .chart-tooltip .muted {
+      color: rgba(148, 163, 184, .92);
+      font-weight: 650;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>📈US Stocks Crash Analysis</h1>
+    <p class="sub">Search a date to view related news <code>/bundle/&lt;date&gt;</code>.</p>
+  </header>
+
+  <div class="layout">
+
+    <section class="card">
+      <div class="card-h">
+        <div class="title">Crash Dates Bar Chart (Click a bar to load)</div>
+        <div style="color:var(--muted); font-size:12px;">from <code>/crash-drops</code></div>
+      </div>
+      <div class="card-b">
+        <div class="controls">
+          <input id="dateInput" type="date" />
+          <button id="searchBtn">Search</button>
+        </div>
+
+        <canvas id="crashChart" height="420" style="margin-top:14px;"></canvas>
+        <div id="chartTooltip" class="chart-tooltip"></div>
+
+        <div class="hint" style="margin-top:10px;">
+          Click a bar to auto-select date and load crash + news.
+        </div>
+
+        <div id="status" class="status" style="display:none;">
+          <span class="dot"></span>
+          <span id="statusText">Ready</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-h">
+        <div class="title">Crash Summary</div>
+        <div id="crashBadge" style="color:var(--muted); font-size:12px;">—</div>
+      </div>
+      <div class="card-b">
+        <div id="crashSummary" class="crash-top">
+          <div class="empty">Select a date and click <b>Search</b> to view crash details.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-h">
+        <div class="title">News Articles</div>
+        <div id="newsCount" style="color:var(--muted); font-size:12px;">0</div>
+      </div>
+      <div class="card-b">
+        <div id="newsList" class="news-list">
+          <div class="empty">No data loaded yet.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const dateInput = document.getElementById('dateInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const newsList = document.getElementById('newsList');
+    const newsCount = document.getElementById('newsCount');
+    const crashSummary = document.getElementById('crashSummary');
+    const crashBadge = document.getElementById('crashBadge');
+    const statusEl = document.getElementById('status');
+    const statusText = document.getElementById('statusText');
+
+    const chartCanvas = document.getElementById("crashChart");
+    const chartCtx = chartCanvas ? chartCanvas.getContext("2d") : null;
+
+    const chartTooltip = document.getElementById("chartTooltip");
+    let CRASH_ANALYSIS_MAP = {}; // date -> first line of analysis
+
+    let openNewsId = null;
+    let CHART_POINTS = [];
+    let selectedDate = null;
+
+    const HIT_SLOP_X = 3;
+    const HIT_SLOP_Y = 3;
+
+    (function setDefaultDate() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    function setStatus(msg, mode = "warn") {
+      statusEl.style.display = "flex";
+      statusText.textContent = msg;
+      const dot = statusEl.querySelector('.dot');
+      if (mode === "ok") {
+        dot.style.background = "var(--good)";
+        dot.style.boxShadow = "0 0 0 4px rgba(34,197,94,.15)";
+      } else if (mode === "bad") {
+        dot.style.background = "var(--bad)";
+        dot.style.boxShadow = "0 0 0 4px rgba(239,68,68,.15)";
+      } else {
+        dot.style.background = "var(--warn)";
+        dot.style.boxShadow = "0 0 0 4px rgba(245,158,11,.15)";
+      }
+    }
+
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return "";
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function firstLine(s) {
+      if (!s) return "";
+      const t = String(s).trim();
+      if (!t) return "";
+      return t.split(/\r?\n/)[0].trim();
+    }
+
+    function showTooltipAt(clientX, clientY, html) {
+      if (!chartTooltip) return;
+      chartTooltip.innerHTML = html;
+      chartTooltip.style.display = "block";
+
+      const pad = 12;
+      const offset = 14;
+
+      chartTooltip.style.left = (clientX + offset) + "px";
+      chartTooltip.style.top = (clientY + offset) + "px";
+
+      const r = chartTooltip.getBoundingClientRect();
+      let x = clientX + offset;
+      let y = clientY + offset;
+
+      if (r.right > window.innerWidth - pad) x = clientX - r.width - offset;
+      if (r.bottom > window.innerHeight - pad) y = clientY - r.height - offset;
+
+      chartTooltip.style.left = Math.max(pad, x) + "px";
+      chartTooltip.style.top = Math.max(pad, y) + "px";
+    }
+
+    function hideTooltip() {
+      if (!chartTooltip) return;
+      chartTooltip.style.display = "none";
+    }
+
+    function asNegative(v) {
+      if (v === null || v === undefined || Number.isNaN(v)) return v;
+      return -Math.abs(Number(v));
+    }
+
+    function fmtDropPct(v) {
+      if (v === null || v === undefined || Number.isNaN(v)) return "—";
+      const n = asNegative(v);
+      return `${n.toFixed(2)}%`;
+    }
+
+    function fmtMaybeDate(v) {
+      if (v === null || v === undefined) return "—";
+      const s = String(v).trim();
+      return s ? escapeHtml(s) : "—";
+    }
+
+    function fmtRecoveryDays(v) {
+      if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
+      return `${Number(v)} days`;
+    }
+
+    function pctClassDrop(v) {
+      if (v === null || v === undefined || Number.isNaN(v)) return "";
+      return "bad";
+    }
+
+    function normalizeCrash(raw) {
+      if (!raw || raw.error) {
+        return { has_crash: false, matches: [], crash_types: [], label: null, _raw: raw };
+      }
+      const s = raw.single_day || {};
+      const m = raw.multi_day || {};
+      const matches = (s.matches || []).concat(m.matches || []);
+      const types = [];
+      if (s.has_event) types.push("single-day");
+      if (m.has_event) types.push("multi-day");
+      const label = (m.has_event && m.day_in_crash && m.crash_length)
+        ? `Day ${m.day_in_crash} of ${m.crash_length}`
+        : null;
+      return { has_crash: matches.length > 0, matches, crash_types: types, label, _raw: raw };
+    }
+
+    function dedupeCrashMatches(matches) {
+      const out = [];
+      const seen = new Set();
+      for (const m of (matches || [])) {
+        const recDate = (m.recovery_date ?? m.recoveryDate ?? m.end_date ?? m.endDate ?? "").toString();
+        const recDaysRaw = (m.recovery_days ?? m.recoveryDays ?? m.crash_length ?? m.crashLength ?? "");
+        const recDays = (recDaysRaw === "" ? null : Number(recDaysRaw));
+
+        const key = [
+          m.index || "",
+          m.type || "",
+          m.start_date || "",
+          m.end_date || "",
+          m.day_in_crash ?? "",
+          m.crash_length ?? "",
+          m.first_day_drop_pct ?? "",
+          m.total_drop_percent ?? "",
+          recDate,
+          (recDays === null ? "" : recDays)
+        ].join("|");
+
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        out.push({
+          ...m,
+          __recovery_date: (recDate && recDate.trim()) ? recDate.trim() : null,
+          __recovery_days: (Number.isNaN(recDays) ? null : recDays)
+        });
+      }
+      return out;
+    }
+
+    function renderCrash(crash, crashReasonOnce = "") {
+      if (!crash || crash.has_crash === false) {
+        crashBadge.textContent = "No crash";
+        crashSummary.innerHTML = `<div class="empty">No crash event found for this date in the CSV.</div>`;
+        return;
+      }
+
+      crashBadge.textContent = (crash.crash_types || []).join(", ") || "Crash";
+
+      const raw = crash._raw || {};
+      const s = raw.single_day || {};
+      const m = raw.multi_day || {};
+
+      const bannerLines = [];
+      if (s.has_event) {
+        const idxNames = (s.index_names || []).map(x => x.name).join(", ");
+        bannerLines.push(`<b>Single-day</b>: ${escapeHtml(idxNames || (s.indexes || []).join(", ") || "—")}`);
+      }
+      if (m.has_event) {
+        const idxNames = (m.index_names || []).map(x => x.name).join(", ");
+        const dayInfo = (m.day_in_crash && m.crash_length)
+          ? `Day ${m.day_in_crash} of ${m.crash_length}`
+          : (m.crash_length ? `${m.crash_length} days` : "—");
+        const range = (m.start_date && m.end_date) ? `${m.start_date} → ${m.end_date}` : "—";
+        bannerLines.push(
+          `<b>Multi-day</b>: ${escapeHtml(idxNames || (m.indexes || []).join(", ") || "—")}
+         <span class="muted">•</span> ${escapeHtml(dayInfo)}
+         <span class="muted">•</span> ${escapeHtml(range)}`
+        );
+      }
+
+      const typeBanner = `
+      <div class="type-banner">
+        <div class="muted" style="margin-bottom:6px;">Crash type detected for this date:</div>
+        ${bannerLines.map(l => `• ${l}`).join("<br>")}
+      </div>
+    `;
+
+      const reasonHtml = `
+      <div class="reason-box">
+        <div class="label">Crash Reason</div>
+        <div class="value ${crashReasonOnce ? "" : "muted"}">${escapeHtml(crashReasonOnce || "—")}</div>
+      </div>
+    `;
+
+      const uniqueMatches = dedupeCrashMatches(crash.matches || []);
+
+      const worstFirst = (raw.worst_first_day_drop === null || raw.worst_first_day_drop === undefined)
+        ? null
+        : Number(raw.worst_first_day_drop);
+
+      let worstTotal = null;
+      uniqueMatches.forEach(mm => {
+        const td = mm.total_drop_percent;
+        if (td !== null && td !== undefined && !Number.isNaN(td)) {
+          const n = asNegative(td);
+          if (worstTotal === null || n < worstTotal) worstTotal = n;
+        }
+      });
+
+      // ✅ FIX: show the recovery_date from the row that has the maximum recovery_days
+      let maxRecoveryDays = null;
+      let maxRecoveryDaysDate = null;
+
+      uniqueMatches.forEach(mm => {
+        const rd = mm.__recovery_date || mm.recovery_date || mm.end_date;
+        const rdStr = (rd && String(rd).trim()) ? String(rd).trim() : null;
+
+        const rdaysRaw = (mm.__recovery_days ?? mm.recovery_days ?? mm.crash_length);
+        const rdays = Number(rdaysRaw);
+
+        if (!Number.isNaN(rdays)) {
+          if (maxRecoveryDays === null || rdays > maxRecoveryDays) {
+            maxRecoveryDays = rdays;
+            maxRecoveryDaysDate = rdStr;
+          } else if (rdays === maxRecoveryDays && rdStr && maxRecoveryDaysDate && rdStr > maxRecoveryDaysDate) {
+            maxRecoveryDaysDate = rdStr; // tie-breaker: later date
+          }
+        }
+      });
+
+      const metricsHtml = `
+      <div class="metrics">
+        <div class="metric">
+          <div class="k">Worst First-Day Drop</div>
+          <div class="v ${pctClassDrop(worstFirst)}">${fmtDropPct(worstFirst)}</div>
+          <div class="small">From backend <code>worst_first_day_drop</code> (matches chart for single-day-only dates)</div>
+        </div>
+        <div class="metric">
+          <div class="k">Worst Total Drop (Multi-day)</div>
+          <div class="v ${pctClassDrop(worstTotal)}">${fmtDropPct(worstTotal)}</div>
+          <div class="small">Shown on chart when a multi-day crash starts on this date</div>
+        </div>
+
+        <div class="metric">
+          <div class="k">Recovery</div>
+          <div class="v">
+            ${fmtMaybeDate(maxRecoveryDaysDate)}
+            <span style="color:var(--muted); font-size:13px;">•</span>
+            ${maxRecoveryDays === null ? "—" : escapeHtml(String(maxRecoveryDays)) + " days"}
+          </div>
+          <div class="small">Uses the row with the <b>longest recovery_days</b> (date + days are tied to the same index)</div>
+        </div>
+      </div>
+    `;
+
+      const rows = uniqueMatches.map(mm => {
+        const range = (mm.start_date && mm.end_date) ? `${escapeHtml(mm.start_date)} → ${escapeHtml(mm.end_date)}` : "—";
+
+        const dayIn = Number(mm.day_in_crash);
+        const len = Number(mm.crash_length);
+        let day = "—";
+        if (Number.isFinite(len) && len > 0) {
+          if (Number.isFinite(dayIn) && dayIn > 0) {
+            day = `Day ${Math.min(dayIn, len)} / ${len}`;
+          } else {
+            day = `Len ${len}`;
+          }
+        }
+
+        const idxLabel = mm.index_name
+          ? `${escapeHtml(mm.index_name)} (${escapeHtml(mm.index)})`
+          : escapeHtml(mm.index || "—");
+
+        const recDate = fmtMaybeDate(mm.__recovery_date || mm.recovery_date || mm.end_date);
+        const recDaysRaw = (mm.__recovery_days ?? mm.recovery_days ?? mm.crash_length);
+        const recDays = (recDaysRaw === null || recDaysRaw === undefined || Number.isNaN(Number(recDaysRaw)))
+          ? "—"
+          : escapeHtml(String(Number(recDaysRaw)));
+
+        return `
+        <tr>
+          <td>${idxLabel}</td>
+          <td>${escapeHtml(mm.type || "—")}</td>
+          <td>${day}</td>
+          <td><span class="pct ${pctClassDrop(mm.first_day_drop_pct)}">${fmtDropPct(mm.first_day_drop_pct)}</span></td>
+          <td><span class="pct ${pctClassDrop(mm.total_drop_percent)}">${fmtDropPct(mm.total_drop_percent)}</span></td>
+          <td>${range}</td>
+          <td>${recDate}</td>
+          <td>${recDays}</td>
+        </tr>
+      `;
+      }).join("");
+
+      const tableHtml = `
+      <table>
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Type</th>
+            <th>Crash Day/Len</th>
+            <th>First Day Drop</th>
+            <th>Total Drop</th>
+            <th>Multi-Day Range</th>
+            <th>Recovery Date</th>
+            <th>Recovery Days</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows || `<tr><td colspan="8" style="color:var(--muted)">No match rows</td></tr>`}
+        </tbody>
+      </table>
+    `;
+
+      crashSummary.innerHTML = `${typeBanner}${reasonHtml}${metricsHtml}${tableHtml}`;
+    }
+
+    function renderNews(items) {
+      const list = Array.isArray(items) ? items : [];
+      newsCount.textContent = String(list.length);
+
+      if (list.length === 0) {
+        newsList.innerHTML = `<div class="empty">No articles found for this date in the database.</div>`;
+        return;
+      }
+
+      const withIds = list.map((a, i) => ({
+        ...a,
+        __id: a.id ?? a._id ?? a.url ?? `${a.date || "d"}-${i}`
+      }));
+
+      newsList.innerHTML = withIds.map(a => {
+        const id = String(a.__id);
+        const title = a.text || "Article";
+        const body = a.article_body || "";
+        const isOpen = (openNewsId === id);
+
+        return `
+        <div class="news-item" data-news-id="${escapeHtml(id)}">
+          <div class="news-top">
+            <div>
+              <h3 class="news-title">${escapeHtml(title)}</h3>
+              <div class="news-meta">${escapeHtml(a.date || "")}</div>
+            </div>
+            <button class="news-btn" type="button" data-toggle="${escapeHtml(id)}">
+              ${isOpen ? "Close body" : "Open body"}
+            </button>
+          </div>
+          <div class="snippet" data-body="${escapeHtml(id)}" ${isOpen ? "" : "hidden"}>
+            ${body ? escapeHtml(body) : "<span style='color:var(--muted)'>No article body.</span>"}
+          </div>
+        </div>
+      `;
+      }).join("");
+    }
+
+    newsList.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-toggle]");
+      if (!btn) return;
+
+      const id = btn.getAttribute("data-toggle");
+      openNewsId = (openNewsId === id) ? null : id;
+
+      newsList.querySelectorAll("[data-body]").forEach(el => {
+        const match = el.getAttribute("data-body") === openNewsId;
+        el.hidden = !match;
+      });
+      newsList.querySelectorAll("[data-toggle]").forEach(b => {
+        const bid = b.getAttribute("data-toggle");
+        b.textContent = (bid === openNewsId) ? "Close body" : "Open body";
+      });
+    });
+
+    async function search() {
+      const date = dateInput.value;
+      if (!date) {
+        setStatus("Please select a date first.", "bad");
+        return;
+      }
+
+      selectedDate = date;
+      redrawChart();
+
+      searchBtn.disabled = true;
+      setStatus("Loading…", "warn");
+
+      try {
+        const res = await fetch(`/bundle/${date}`);
+        if (!res.ok) {
+          const t = await res.text();
+          setStatus(`HTTP ${res.status} from /bundle/${date}`, "bad");
+          newsList.innerHTML = `<div class="empty"><b>Error:</b> ${escapeHtml(t)}</div>`;
+          crashSummary.innerHTML = `<div class="empty"><b>Error:</b> Could not load crash summary.</div>`;
+          return;
+        }
+
+        const data = await res.json();
+        openNewsId = null;
+
+        const crashReasonOnce =
+          data?.crash?.crash_reason ||
+          data?.crash?.reason ||
+          data?.news?.find(n => n?.crash_reason)?.crash_reason ||
+          "";
+
+        const normalized = normalizeCrash(data.crash);
+        renderCrash(normalized, crashReasonOnce);
+        renderNews(data.news);
+
+        setStatus("Loaded successfully.", "ok");
+      } catch (err) {
+        setStatus(`Request failed: ${err}`, "bad");
+        newsList.innerHTML = `<div class="empty"><b>Error:</b> ${escapeHtml(err)}</div>`;
+        crashSummary.innerHTML = `<div class="empty"><b>Error:</b> ${escapeHtml(err)}</div>`;
+      } finally {
+        searchBtn.disabled = false;
+      }
+    }
+
+    searchBtn.addEventListener("click", search);
+    dateInput.addEventListener("keydown", (e) => { if (e.key === "Enter") search(); });
+
+    function drawCrashBarChart(points) {
+      if (!chartCtx || !chartCanvas) return;
+
+      const ctx = chartCtx;
+
+      const cssW = chartCanvas.clientWidth || 900;
+      const cssH = chartCanvas.clientHeight || 420;
+      const dpr = window.devicePixelRatio || 1;
+
+      const desiredW = Math.floor(cssW * dpr);
+      const desiredH = Math.floor(cssH * dpr);
+
+      if (chartCanvas.width !== desiredW || chartCanvas.height !== desiredH) {
+        chartCanvas.width = desiredW;
+        chartCanvas.height = desiredH;
+      }
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      const padL = 64, padR = 14, padT = 14, padB = 78;
+      const iw = cssW - padL - padR;
+      const ih = cssH - padT - padB;
+
+      const usable = (points || []).filter(p => typeof p.value === "number" && !Number.isNaN(p.value));
+      if (usable.length === 0) {
+        ctx.fillStyle = "rgba(148,163,184,.9)";
+        ctx.font = "12px system-ui";
+        ctx.fillText("Loading crash chart…", 12, 22);
+        return;
+      }
+
+      const MIN_MAG = 2.5;
+      const mags = usable.map(p => Math.abs(p.value));
+      const maxMag = Math.max(...mags, MIN_MAG);
+
+      ctx.strokeStyle = "rgba(148,163,184,.22)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padL, padT);
+      ctx.lineTo(padL, padT + ih);
+      ctx.lineTo(padL + iw, padT + ih);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(148,163,184,.92)";
+      ctx.font = "11px system-ui";
+      ctx.fillText(`-${maxMag.toFixed(2)}%`, 10, padT + 10);
+      ctx.fillText(`-${MIN_MAG.toFixed(2)}%`, 10, padT + ih);
+
+      const barCount = usable.length;
+      const gap = Math.max(6, Math.floor(iw / (barCount * 8)));
+      const barW = Math.max(10, Math.floor((iw - gap * (barCount - 1)) / barCount));
+      const xAt = (i) => padL + i * (barW + gap);
+
+      const heightFromMag = (mag) => {
+        const clamped = Math.max(MIN_MAG, Math.abs(mag));
+        const denom = (maxMag - MIN_MAG) || 1;
+        const t = (clamped - MIN_MAG) / denom;
+        return t * ih;
+      };
+
+      window.__barHit = [];
+
+      usable.forEach((p, i) => {
+        const mag = Math.abs(p.value);
+        const bh = Math.max(1, heightFromMag(mag));
+        const x = xAt(i);
+        const y = padT + ih - bh;
+
+        const isSel = selectedDate && p.date === selectedDate;
+
+        ctx.fillStyle = isSel ? "rgba(245,158,11,.95)" : "rgba(96,165,250,.85)";
+        ctx.fillRect(x, y, barW, bh);
+
+        ctx.fillStyle = isSel ? "rgba(253,230,138,.95)" : "rgba(191,219,254,.95)";
+        ctx.fillRect(x, y, barW, 2);
+
+        window.__barHit.push({
+          date: p.date,
+          x: x - HIT_SLOP_X,
+          y: y - HIT_SLOP_Y,
+          w: barW + HIT_SLOP_X * 2,
+          h: bh + HIT_SLOP_Y * 2
+        });
+      });
+
+      ctx.fillStyle = "rgba(148,163,184,.95)";
+      ctx.font = "9px system-ui";
+
+      usable.forEach((p, i) => {
+        const xCenter = xAt(i) + barW / 2;
+        const label = p.date;
+
+        ctx.save();
+        ctx.translate(xCenter, padT + ih + 6);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    function redrawChart() {
+      if (CHART_POINTS && CHART_POINTS.length) drawCrashBarChart(CHART_POINTS);
+    }
+
+    // ✅ UPDATED: expects payload.recovery_days (longest recovery days for that chart date)
+    async function loadCrashSeriesFromBackend() {
+      if (!chartCtx) return;
+      drawCrashBarChart([]);
+
+      try {
+        const res = await fetch("/crash-drops");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+
+        const dates = payload.dates || [];
+        const drops = payload.drops || [];
+        const kinds = payload.drop_kind || [];
+        const recoveryDays = payload.recovery_days || []; // ✅ NEW
+
+        CHART_POINTS = dates.map((d, i) => ({
+          date: d,
+          value: (drops[i] === null || drops[i] === undefined) ? null : Number(drops[i]),
+          kind: kinds[i] || "first_day",
+          recovery_days: (recoveryDays[i] === null || recoveryDays[i] === undefined) ? null : Number(recoveryDays[i]) // ✅ NEW
+        }));
+
+        redrawChart();
+        window.addEventListener("resize", redrawChart);
+      } catch (e) {
+        drawCrashBarChart([]);
+        console.error("Failed to load /crash-drops:", e);
+      }
+    }
+
+    async function loadCrashAnalysisFromBackend() {
+      try {
+        const res = await fetch("/crash-analysis-firstline");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const payload = await res.json();
+        CRASH_ANALYSIS_MAP = payload.analysis || {};
+      } catch (e) {
+        CRASH_ANALYSIS_MAP = {};
+        console.warn("Failed to load /crash-analysis-firstline:", e);
+      }
+    }
+
+    function handlePickAt(clientX, clientY) {
+      const hit = window.__barHit || [];
+      if (!hit.length) return null;
+
+      const rect = chartCanvas.getBoundingClientRect();
+      const mx = clientX - rect.left;
+      const my = clientY - rect.top;
+
+      for (const b of hit) {
+        const withinX = (mx >= b.x && mx <= (b.x + b.w));
+        const withinY = (my >= b.y && my <= (b.y + b.h));
+        if (withinX && withinY) return b;
+      }
+      return null;
+    }
+
+    function buildTooltipHtml({ date, drop, kind, recovery_days, analysis }) {
+      const dropLabel = (kind === "total") ? "Total drop" : "First-day drop";
+      const rec = fmtRecoveryDays(recovery_days);
+
+      return `
+      <div class="t-date">${escapeHtml(date)}</div>
+      <div class="t-drop">${escapeHtml(dropLabel)}: ${escapeHtml(fmtDropPct(drop))}</div>
+      <div class="t-meta"><span class="muted">Recovery:</span> ${escapeHtml(rec)}</div>
+      <div class="t-reason">
+        <span class="muted">Analysis:</span>
+        ${analysis ? escapeHtml(analysis) : "<span class='muted'>—</span>"}
+      </div>
+    `;
+    }
+
+    chartCanvas.addEventListener("mousemove", (evt) => {
+      const chosen = handlePickAt(evt.clientX, evt.clientY);
+
+      if (!chosen) {
+        hideTooltip();
+        chartCanvas.style.cursor = "pointer";
+        return;
+      }
+
+      const date = chosen.date;
+      const point = (CHART_POINTS || []).find(p => p.date === date);
+      const drop = point && typeof point.value === "number" ? point.value : null;
+
+      const kind = point?.kind || "first_day";
+      const recovery_days = point?.recovery_days ?? null; // ✅ CHANGED
+      const analysis = firstLine(CRASH_ANALYSIS_MAP[date] || "");
+
+      const html = buildTooltipHtml({ date, drop, kind, recovery_days, analysis });
+      showTooltipAt(evt.clientX, evt.clientY, html);
+    });
+
+    chartCanvas.addEventListener("mouseleave", () => hideTooltip());
+
+    chartCanvas.addEventListener("click", (evt) => {
+      const chosen = handlePickAt(evt.clientX, evt.clientY);
+      if (!chosen) return;
+
+      dateInput.value = chosen.date;
+      selectedDate = chosen.date;
+      redrawChart();
+      search();
+    });
+
+    chartCanvas.addEventListener("touchstart", (evt) => {
+      if (!evt.touches || !evt.touches.length) return;
+      evt.preventDefault();
+      const t = evt.touches[0];
+      const chosen = handlePickAt(t.clientX, t.clientY);
+      if (!chosen) return;
+
+      dateInput.value = chosen.date;
+      selectedDate = chosen.date;
+      redrawChart();
+      search();
+    }, { passive: false });
+
+    chartCanvas.addEventListener("touchmove", (evt) => {
+      if (!evt.touches || !evt.touches.length) return;
+      const t = evt.touches[0];
+      const chosen = handlePickAt(t.clientX, t.clientY);
+
+      if (!chosen) {
+        hideTooltip();
+        return;
+      }
+
+      const date = chosen.date;
+      const point = (CHART_POINTS || []).find(p => p.date === date);
+      const drop = point && typeof point.value === "number" ? point.value : null;
+
+      const kind = point?.kind || "first_day";
+      const recovery_days = point?.recovery_days ?? null; // ✅ CHANGED
+      const analysis = firstLine(CRASH_ANALYSIS_MAP[date] || "");
+
+      const html = buildTooltipHtml({ date, drop, kind, recovery_days, analysis });
+      showTooltipAt(t.clientX, t.clientY, html);
+    }, { passive: true });
+
+    chartCanvas.addEventListener("touchend", () => hideTooltip(), { passive: true });
+
+    (async function init() {
+      await Promise.all([
+        loadCrashSeriesFromBackend(),
+        loadCrashAnalysisFromBackend()
+      ]);
+    })();
+  </script>
+</body>
+
+</html>
