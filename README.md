@@ -77,3 +77,5 @@ Ensure your index history data (JSON format) is placed in the designated input d
 
 ## 🔒 Licenses & Disclaimer
 *This tool is for educational and research purposes only. It does not constituent financial advice.*
+
+<!-- gitpulse:contribution index="1" timestamp="2026-05-16" -->
